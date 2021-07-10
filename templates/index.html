@@ -1,0 +1,87 @@
+<!DOCTYPE HTML>
+<html lang="ko">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+      <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+      <script src="{{ url_for('static', filename='js/web3.min.js') }}"></script>
+      <title>이더리움 투표 시스템</title>
+    </head>
+    <body>
+      <h1>원하는 후보에 투표하세요!</h1>
+        <p class='metamaskDetect'></p>
+        <p>현재 1위: {{winnerName}}</p>
+        <p>보유한 투표권: {{voter_info[0]}}</p>
+        <p>투표 여부: {{voter_info[1]}}</p>
+        <p>수임자: {{voter_info[2]}}</p>
+        <p>투표한 후보: {{voter_info[3]}}</p>
+      <p>
+          <button class="enableEthereumButton">이더리움 활성화하기</button>
+          <button class="delegate">내 투표권 위임하기</button>
+          <button class="giveRightToVote">투표 권한 부여하기(관리자 전용)</button>
+      </p>
+
+
+    <div class="container">
+        <div class="main-content">
+        {% for i in range(proposals|length) %}
+        <article class="component">
+            <img src="https://newsimg.hankookilbo.com/cms/articlerelease/2020/09/13/c22a51dd-d1f8-48d2-82ad-f18a671078be.jpg" alt="카드 이미지"/>
+            <div class="description">
+                <h3>{{proposals[i][0].decode()}}</h3>
+                <p>{{proposals[i][1]}}</p>
+                <p class="here">여기에 세부 내용을 입력하세요.</p>
+                <p onclick='vote({{i}});' class="voteButton">투표하기</p>
+            </div>
+        </article>
+        {% endfor %}
+        </div>
+    </div>
+    </body>
+    <script>
+         metamask_detect = document.querySelector(".metamaskDetect");
+        if (typeof window.ethereum !== 'undefined') {
+            metamask_detect.innerHTML = '메타마스크가 설치되었습니다!'
+        } else {
+            metamask_detect.innerHTML = '메타마스크가 설치되지 않았습니다!<br><a href="https://metamask.io/download">여기</a>에서 메타마스크를 설치하세요!'
+        }
+
+        const ethereumButton = document.querySelector('.enableEthereumButton');
+        const giveRightToVoteButton = document.querySelector('.giveRightToVote');
+        const delegateButton = document.querySelector('.delegate');
+        
+        async function vote(i){
+            window.web3 = new Web3(window.ethereum);
+            window.ethereum.enable();
+            window.contract = new window.web3.eth.Contract({{abi|safe}}, "{{contract_address}}");
+            const accounts = await window.web3.eth.getAccounts();
+            const account = accounts[0];
+            
+            const ret = await window.contract.methods.vote(i).send({from: account});
+            
+            console.log('투표함' + ret);
+            location.reload();
+        }
+
+        ethereumButton.addEventListener('click', () => {
+          //Will Start the metamask extension
+            console.log('이더리움 활성화')
+            ethereum.request({ method: 'eth_requestAccounts' });
+        });
+        
+        giveRightToVoteButton.addEventListener('click',  async () => {
+            const accounts = await ethereum.request({ method: 'eth_requestAccounts' }); // 이더리움 활성화
+            const account = accounts[0]; // 메타마스크로부터 주소를 가져옴
+            url = "/give_right_to_vote?my_address=" + account
+            location.href = url;
+        });
+        
+        delegateButton.addEventListener('click',  async () => {
+            const accounts = await ethereum.request({ method: 'eth_requestAccounts' }); // 이더리움 활성화
+            const account = accounts[0]; // 메타마스크로부터 주소를 가져옴
+            url = "/delegate?my_address=" + account
+            location.href = url;
+        });
+      </script>
+</html>

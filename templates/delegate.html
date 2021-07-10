@@ -1,0 +1,48 @@
+<html>
+    <title>투표 권한 위임하기</title>
+    <head>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+        <script src="{{ url_for('static', filename='js/web3.min.js') }}"></script>
+      
+    </head>
+    <body>
+        <h1>투표 권한 위임하기</h1>
+        {% if delegate_address %}
+          <p>{{delegate_address}} 주소에 투표 권한을 위임했습니다!</p>
+        {% endif %}
+        
+        
+        <p>
+            상대방의 이더리움 주소를 입력하세요.
+        </p>
+        <p>Address: <input id="delegate_address" type="text"></p>
+        <button class="submit">권한 위임</button>
+        <button class="gohome">돌아가기</button>
+    </body>
+    
+    <script>
+        const submitButton = document.querySelector('.submit');
+        const gohomeButton = document.querySelector('.gohome');
+        
+        submitButton.addEventListener('click', async () => {
+            window.web3 = new Web3(window.ethereum);
+            window.ethereum.enable();
+            window.contract = new window.web3.eth.Contract({{abi|safe}}, "{{contract_address}}");
+            const accounts = await window.web3.eth.getAccounts();
+            const account = accounts[0];
+            
+            delegate_address = document.getElementById("delegate_address").value;
+            
+            const ret = await window.contract.methods.delegate(delegate_address).send({from: account});
+            
+            url = "/delegate?delegate_address=" + delegate_address
+            
+            location.href = url;
+        });
+        
+        gohomeButton.addEventListener('click', () => {
+            location.href = '/';
+        });
+    </script>
+    
+</html>

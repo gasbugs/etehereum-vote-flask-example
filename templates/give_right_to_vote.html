@@ -1,0 +1,38 @@
+<html>
+    <title>투표 권한 부여하기</title>
+    <head>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    </head>
+    <body>
+        <h1>투표 권한 부여하기</h1>
+        {% if give_address %}
+          <p>{{give_address}} 주소에 투표 권한을 부여했습니다!</p>
+        {% endif %}
+        
+        
+        <p>
+            상대방의 이더리움 주소를 입력하세요.
+        </p>
+        <p>Address: <input id="give_address" type="text"></p>
+        <button class="submit">권한 부여</button>
+        <button class="gohome">돌아가기</button>
+    </body>
+    
+    <script>
+        const submitButton = document.querySelector('.submit');
+        const gohomeButton = document.querySelector('.gohome');
+        
+        submitButton.addEventListener('click', async () => {
+            const accounts = await ethereum.request({ method: 'eth_requestAccounts' }); // 이더리움 활성화
+            const account = accounts[0]; // 메타마스크로부터 주소를 가져옴
+            give_address = document.getElementById("give_address").value;
+            url = "/give_right_to_vote?give_address=" + give_address + "&my_address=" + account;
+            location.href = url;
+        });
+        
+        gohomeButton.addEventListener('click', () => {
+            location.href = '/';
+        });
+    </script>
+    
+</html>
