@@ -19,6 +19,9 @@ pip install -r requirements.txt
 ```
 
 ## start server
+실행하기 전에 application.py에서 Ganache IP를 변경하세요.
+Change the Ganache IP in application.py before running.
+
 ```bash
 python application.py
 ```
